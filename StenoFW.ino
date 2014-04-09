@@ -20,8 +20,7 @@
 #define ROWS 5
 #define COLS 6
 
-/* The following matrix is shown here for reference, it is needed for
-  correct wiring.
+/* The following matrix is shown here for reference only.
 char keys[ROWS][COLS] = {
   {'S', 'T', 'P', 'H', '*', Fn1},
   {'S', 'K', 'W', 'R', '*', Fn2},
