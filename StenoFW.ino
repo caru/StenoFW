@@ -262,7 +262,7 @@ void sendChordTxBolt() {
   
   // byte 1
   // S-
-  if (currentChord[0][0] || currentChord[1][0]) chordBytes[0] |= B00000001;
+  if (currentChord[0][0] || currentChord[1][0]) chordBytes[index] |= B00000001;
   // T-
   if (currentChord[0][1]) chordBytes[index] |= B00000010;  
   // K-
@@ -316,7 +316,7 @@ void sendChordTxBolt() {
   // -D
   if (currentChord[3][4]) chordBytes[index] |= B11000100;
   // -Z
-  if (currentChord[4][3]) chordBytes[index] |= B11001000;
+  if (currentChord[4][4]) chordBytes[index] |= B11001000;
   // #
   if (currentChord[2][4]) chordBytes[index] |= B11010000;
   // Increment the index if the current byte has any keys set.
