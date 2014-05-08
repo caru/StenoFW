@@ -353,21 +353,51 @@ void sendChord() {
   }
 }
 
-// This function is called when only "fn1" key has been pressed.
+// Fn1 functions
+//
+// This function is called when "fn1" key has been pressed, but not "fn2".
+// Tip: maybe it is better to avoid using "fn1" key alone in order to avoid
+// accidental activation?
+//
+// Current functions:
+//    PH-G   ->   Set Gemini PR protocol mode
+//    PH-B   ->   Set TX Bolt protocol mode
 void fn1() {
-  protocol = GEMINI;
+  // "PH" -> Set protocol
+  if (currentChord[0][2] && currentChord[0][3]) {
+    // "-G" -> Gemini PR
+    if (currentChord[4][2]) {
+      protocol = GEMINI;
+    }
+    // "-B" -> TX Bolt
+    if (currentChord[4][1]) {
+      protocol = TXBOLT;
+    }
+  }
 }
 
-// This function is called when only "fn2" key has been pressed.
+// Fn2 functions
+//
+// This function is called when "fn2" key has been pressed, but not "fn1".
+// Tip: maybe it is better to avoid using "fn2" key alone in order to avoid
+// accidental activation?
+//
+// Current functions: none.
 void fn2() {
-  protocol = TXBOLT;
+
 }
 
-// This function is called when both "fn1" and "fn1" key has been pressed.
+// Fn1-Fn2 functions
+//
+// This function is called when both "fn1" and "fn1" keys have been pressed.
+//
+// Current functions:
+//   HR-P   ->   LED intensity up
+//   HR-F   ->   LED intensity down
 void fn1fn2() {
   // "HR" -> Change LED intensity
   if (currentChord[0][3] && currentChord[1][3]) {
-    // "P" -> LED intensity up
+    // "-P" -> LED intensity up
     if (currentChord[3][1]) {
       if (ledIntensity == 0) ledIntensity +=1;
       else if(ledIntensity < 50) ledIntensity += 10;
@@ -375,7 +405,7 @@ void fn1fn2() {
       if (ledIntensity > 255) ledIntensity = 0;
       analogWrite(ledPin, ledIntensity);
     }
-    // "F" -> LED intensity down
+    // "-F" -> LED intensity down
     if (currentChord[3][0]) {
       if(ledIntensity == 0) ledIntensity = 255;
       else if(ledIntensity < 50) ledIntensity -= 10;
