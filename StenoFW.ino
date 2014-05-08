@@ -48,10 +48,12 @@ int ledIntensity = 1; // Min 0 - Max 255
 // Protocol state
 #define GEMINI 0
 #define TXBOLT 1
-int protocol = GEMINI;
+#define NKRO 2
+int protocol = NKRO;
 
 // This is called when the keyboard is connected
 void setup() {
+  Keyboard.begin();
   Serial.begin(9600);
   for (int i = 0; i < COLS; i++)
     pinMode(colPins[i], INPUT_PULLUP);
@@ -156,6 +158,38 @@ void readKeys() {
       currentKeyReadings[i][j] = digitalRead(colPins[j]) == LOW ? true : false;
     digitalWrite(rowPins[i], HIGH);
   }
+}
+
+// Send current chord using NKRO Keyboard emulation
+void sendChordNkro() {
+  // QWERTY mapping
+  char qwertyMapping[ROWS][COLS] = {
+    {'q', 'w', 'e', 'r', 't', ' '},
+    {'a', 's', 'd', 'f', 'g', ' '},
+    {'c', 'v', 'n', 'm', '3', ' '},
+    {'u', 'i', 'o', 'p', '[', ' '},
+    {'j', 'k', 'l', ';', '\'', ' '}
+  };
+  int keyCounter = 0;
+  char qwertyKeys[ROWS * COLS];
+  boolean firstKeyPressed = false;
+  
+  // Calculate qwerty keys array using qwertyMappings[][]
+  for (int i = 0; i < ROWS; i++)
+    for (int j = 0; j < COLS; j++)
+      if (currentChord[i][j]) {
+        qwertyKeys[keyCounter] = qwertyMapping[i][j];
+        keyCounter++;
+      }
+  // Emulate keyboard key presses
+  for (int i = 0; i < keyCounter; i++) {
+    if (qwertyKeys[i] != ' ') {
+      Keyboard.press(qwertyKeys[i]);
+      if (!firstKeyPressed) firstKeyPressed = true;
+      else Keyboard.release(qwertyKeys[i]);
+    }
+  }
+  Keyboard.releaseAll();
 }
  
 // Send current chord over serial using the Gemini protocol. 
@@ -346,7 +380,9 @@ void sendChord() {
     return;
   }
   
-  if (protocol == GEMINI) {
+  if (protocol == NKRO) {
+    sendChordNkro();
+  } else if (protocol == GEMINI) {
     sendChordGemini();
   } else {
     sendChordTxBolt();
@@ -360,17 +396,22 @@ void sendChord() {
 // accidental activation?
 //
 // Current functions:
+//    PH-PB   ->   Set NKRO Keyboard emulation mode
 //    PH-G   ->   Set Gemini PR protocol mode
 //    PH-B   ->   Set TX Bolt protocol mode
 void fn1() {
   // "PH" -> Set protocol
   if (currentChord[0][2] && currentChord[0][3]) {
+    // "-PB" -> NKRO Keyboard
+    if (currentChord[3][1] && currentChord[4][1]) {
+      protocol = NKRO;
+    }
     // "-G" -> Gemini PR
-    if (currentChord[4][2]) {
+    else if (currentChord[4][2]) {
       protocol = GEMINI;
     }
     // "-B" -> TX Bolt
-    if (currentChord[4][1]) {
+    else if (currentChord[4][1]) {
       protocol = TXBOLT;
     }
   }
